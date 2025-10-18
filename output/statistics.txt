@@ -1,0 +1,4 @@
+count=100
+sum=4481
+mean=44.81
+median=44.5
