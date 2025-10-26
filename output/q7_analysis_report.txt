@@ -1,0 +1,98 @@
+Q7 Analysis Report
+=================
+
+Site-level summary:
+       site        age       bmi  systolic_bp
+   SITE A    23.608108 25.872059   116.633803
+   SITE B    59.670213 26.822826   118.055556
+   SITE C    60.254545 25.688889   115.942308
+   SITE D    77.853659 25.892105   119.513514
+   SITE E    12.258065 25.496667   113.066667
+  Site  A    80.328358 25.452239   118.552239
+   Site A    49.843750 26.263934   119.682540
+   Site B    56.318182 26.521429   117.035294
+   Site C    27.831325 26.454054   116.419753
+   Site D   -25.312500 26.387097   117.406250
+   Site E    75.500000 27.102857   119.600000
+   Site_D     9.870968 25.533333   118.827586
+   site a    67.270270 25.609859   116.704225
+   site b    57.022222 25.615909   117.393258
+   site c    80.929825 26.356364   119.714286
+   site d    81.000000 27.180000   121.333333
+   site e    83.194444 26.333333   120.000000
+     SITE A  60.910819 26.060392   117.091743
+     SITE B  63.628734 25.674189   117.032544
+     SITE C  55.459504 25.691182   117.638261
+     SITE D  55.511182 25.858667   118.488294
+     SITE E  51.867797 25.137868   117.436170
+    Site  A  53.770925 25.725865   118.632777
+     Site A  61.440242 25.977864   117.093060
+     Site B  56.911685 25.567525   117.124823
+     Site C  60.890578 25.847143   118.508744
+     Site D  67.472376 25.636919   118.017751
+     Site E  56.429467 25.579667   117.065574
+     Site_D  77.993976 25.167532   117.492063
+     site a  49.803379 25.770048   116.344992
+     site b  68.405660 25.644852   117.091292
+     site c  56.832520 25.695408   117.973064
+     site d  61.882521 25.290030   117.205438
+     site e  61.860544 25.377899   117.907801
+
+Intervention group summary:
+intervention_group  mean_cvd_rate  mean_adherence_pct
+         CONTROL         0.357143           58.705882
+          Contrl         0.342466           61.263158
+         Control         0.326316           61.361446
+     TREATMENT A         0.307692           57.296296
+     TREATMENT B         0.385542           62.171053
+      Treatmen A         0.316667           60.566038
+    Treatment  B         0.312500           59.740741
+     Treatment A         0.272727           61.358491
+     Treatment B         0.336538           58.872093
+      TreatmentA         0.257576           58.528302
+         control         0.337349           63.955882
+     treatment a         0.388060           60.169811
+     treatment b         0.366667           65.702703
+           CONTROL       0.331469           60.623140
+            Contrl       0.344140           59.854015
+           Control       0.320905           61.156250
+       TREATMENT A       0.325175           60.522634
+       TREATMENT B       0.348226           60.360656
+        Treatmen A       0.319257           59.771203
+      Treatment  B       0.310526           60.931715
+       Treatment A       0.344262           61.347826
+       Treatment B       0.335616           61.385484
+        TreatmentA       0.300787           59.295749
+           control       0.347411           60.603200
+       treatment a       0.314626           60.474104
+       treatment b       0.332000           61.120444
+
+Dropout cross-tab:
+dropout_status_norm  Dropped Out  Stayed
+intervention_group                      
+  CONTROL                     16      68
+  Contrl                      16      57
+  Control                     12      83
+  TREATMENT A                 11      54
+  TREATMENT B                  7      76
+  Treatmen A                   7      53
+  Treatment  B                10      54
+  Treatment A                 13      53
+  Treatment B                 18      86
+  TreatmentA                  13      53
+  control                     15      68
+  treatment a                 14      53
+  treatment b                 16      74
+CONTROL                      110     605
+Contrl                       117     685
+Control                      111     640
+TREATMENT A                   86     486
+TREATMENT B                   90     671
+Treatmen A                    85     507
+Treatment  B                 101     659
+Treatment A                   81     529
+Treatment B                  110     620
+TreatmentA                    94     541
+control                      109     625
+treatment a                   86     502
+treatment b                  119     631
