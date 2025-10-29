@@ -1,4 +1,4 @@
 count=100
-sum=4481
-mean=44.81
+sum=4598
+mean=45.98
 median=44.5
