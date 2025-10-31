@@ -69,7 +69,8 @@ def detect_missing(df: pd.DataFrame) -> pd.Series:
     pass
 
 
-def fill_missing(df: pd.DataFrame, column: str, strategy: str = 'mean') -> pd.DataFrame:
+def fill_missing(df, column, strategy):
+    out = df.copy()
     """
     Fill missing values in a column using specified strategy.
 
@@ -84,57 +85,41 @@ def fill_missing(df: pd.DataFrame, column: str, strategy: str = 'mean') -> pd.Da
     Example:
         >>> df_filled = fill_missing(df, 'age', strategy='median')
     """
-    if strategy == 'mean':
-        df[column] = df[column].fillna(df[column].mean())
-    elif strategy == 'median':
-        df[column] = df[column].fillna(df[column].median())
-    elif strategy == 'ffill':
-        df[column] = df[column].fillna(method='ffill')
-    return df
+    if strategy in ("mean", "median"):
+        val = getattr(out[column].astype(float), strategy)()
+        out[column] = out[column].fillna(val)
+    elif strategy == "ffill":
+        out[column] = out[column].ffill()
+    else:
+        raise ValueError("Unknown strategy")
+    return out
     pass
 
 
-def filter_data(df: pd.DataFrame, filters: list) -> pd.DataFrame:
+def filter_data(df, filters):
     """
-    Apply a list of filters to DataFrame in sequence.
-
-    Args:
-        df: Input DataFrame
-        filters: List of filter dictionaries, each with keys:
-                'column', 'condition', 'value'
-                Conditions: 'equals', 'greater_than', 'less_than', 'in_range', 'in_list'
-
-    Returns:
-        pd.DataFrame: Filtered data
-
-    Examples:
-        >>> # Single filter
-        >>> filters = [{'column': 'site', 'condition': 'equals', 'value': 'Site A'}]
-        >>> df_filtered = filter_data(df, filters)
-        >>>
-        >>> # Multiple filters applied in order
-        >>> filters = [
-        ...     {'column': 'age', 'condition': 'greater_than', 'value': 18},
-        ...     {'column': 'age', 'condition': 'less_than', 'value': 65},
-        ...     {'column': 'site', 'condition': 'in_list', 'value': ['Site A', 'Site B']}
-        ... ]
-        >>> df_filtered = filter_data(df, filters)
-        >>>
-        >>> # Range filter example
-        >>> filters = [{'column': 'age', 'condition': 'in_range', 'value': [18, 65]}]
-        >>> df_filtered = filter_data(df, filters)
+    Apply multiple filtering conditions to a DataFrame.
     """
+    out = df.copy()
     for f in filters:
-        col, op, val = f['column'], f['operator'], f['value']
-        if op == 'equals':
-            df = df[df[col] == val]
-        elif op == 'greater_than':
-            df = df[df[col] > val]
-        elif op == 'less_than':
-            df = df[df[col] < val]
-        elif op == 'in_range':
-            df = df[(df[col] >= val[0]) & (df[col] <= val[1])]
-    return df
+        col = f["column"]
+        cond = f.get("condition", f.get("operator"))
+        val = f["value"]
+
+        if cond == "equals":
+            out = out[out[col] == val]
+        elif cond == "greater_than":
+            out = out[out[col] > val]
+        elif cond == "less_than":
+            out = out[out[col] < val]
+        elif cond == "in_range":
+            lo, hi = val
+            out = out[(out[col] >= lo) & (out[col] <= hi)]
+        elif cond == "in_list":
+            out = out[out[col].isin(val)]
+        else:
+            raise ValueError(f"Unknown condition: {cond}")
+    return out
     pass
 
 
@@ -168,9 +153,7 @@ def transform_types(df: pd.DataFrame, type_map: dict) -> pd.DataFrame:
     return df
     pass
 
-
-def create_bins(df: pd.DataFrame, column: str, bins: list,
-                labels: list, new_column: str = None) -> pd.DataFrame:
+def create_bins(df: pd.DataFrame, column: str, bins: list, labels: list, new_column: str = None) -> pd.DataFrame:
     """
     Create categorical bins from continuous data using pd.cut().
 
@@ -179,24 +162,15 @@ def create_bins(df: pd.DataFrame, column: str, bins: list,
         column: Column to bin
         bins: List of bin edges
         labels: List of bin labels
-        new_column: Name for new binned column (default: '{column}_binned')
+        new_column: Optional name for new binned column (default: '{column}_bins')
 
     Returns:
         pd.DataFrame: DataFrame with new binned column
-
-    Example:
-        >>> df_binned = create_bins(
-        ...     df,
-        ...     column='age',
-        ...     bins=[0, 18, 35, 50, 65, 100],
-        ...     labels=['<18', '18-34', '35-49', '50-64', '65+']
-        ... )
     """
-    if new_column is None:
-        new_column = column + '_binned'
-    df[new_column] = pd.cut(df[column], bins=bins, labels=labels)
-    return df
-    pass
+    out = df.copy()
+    colname = new_column or f"{column}_bins"
+    out[colname] = pd.cut(out[column], bins=bins, labels=labels, include_lowest=True)
+    return out
 
 
 def summarize_by_group(df: pd.DataFrame, group_col: str,
@@ -233,7 +207,6 @@ def summarize_by_group(df: pd.DataFrame, group_col: str,
 
 
 if __name__ == '__main__':
-    # Optional: Test your utilities here
     print("Data utilities loaded successfully!")
     print("Available functions:")
     print("  - load_data()")

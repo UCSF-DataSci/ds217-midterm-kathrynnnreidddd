@@ -73,110 +73,91 @@ Traceback (most recent call last):
     raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
 nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
 ------------------
-# TODO: Intervention group comparisons
-dropout_candidates = [c for c in df.columns if "dropout" in c.lower()]
-
-DROPOUT_COL = None
-for c in (dropout_candidates + ["dropout_status", "dropout", "dropped_out", "dropout_flag", "dropoutstatus"]):
-    if c in df.columns:
-        DROPOUT_COL = c
-        break
-
-if DROPOUT_COL is not None:
-    s = df[DROPOUT_COL].astype(str).str.strip().str.lower()
-    s = (
-        s.replace({
-            "yes": "dropped out", "true": "dropped out", "1": "dropped out",
-            "no": "stayed",       "false": "stayed",       "0": "stayed"
-        })
-    )
-    df["dropout_status_norm"] = s.str.title()
-    print(f"Using dropout column: {DROPOUT_COL} -> normalized to 'dropout_status_norm'")
-else:
-    print("No dropout-like column found. Candidates:", dropout_candidates)
-
-cvd_rate = (
-    df.groupby("intervention_group", dropna=False)["outcome_cvd"]
-      .mean(numeric_only=True)
-      .reset_index(name="mean_cvd_rate")
+# TODO: Visualization
+plot_df = intervention_summary.copy()
+plot_df["intervention_group"] = (
+    plot_df["intervention_group"].str.strip().str.title()
 )
-
-adherence = (
-    df.groupby("intervention_group", dropna=False)["adherence_pct"]
-      .mean(numeric_only=True)
-      .reset_index(name="mean_adherence_pct")
+plot_df = (
+    plot_df.groupby("intervention_group", as_index=False)
+           .mean(numeric_only=True)
+           .sort_values("intervention_group")
 )
+fig, ax1 = plt.subplots(figsize=(8,5))
 
-if "dropout_status_norm" in df.columns:
-    dropout_table = pd.crosstab(
-        df["intervention_group"], df["dropout_status_norm"], dropna=False
-    )
-else:
-    dropout_table = None
+color1 = "tab:blue"
+color2 = "tab:orange"
 
-intervention_summary = cvd_rate.merge(adherence, on="intervention_group")
-display(intervention_summary)
-if dropout_table is not None:
-    display(dropout_table)
+ax1.set_xlabel("Intervention Group")
+ax1.set_ylabel("Mean CVD Rate", color=color1)
+ax1.bar(plot_df["intervention_group"], plot_df["mean_cvd_rate"], color=color1, alpha=0.6, label="Mean CVD Rate")
+ax1.tick_params(axis="y", labelcolor=color1)
 
+ax2 = ax1.twinx()
+ax2.set_ylabel("Mean Adherence (%)", color=color2)
+ax2.plot(plot_df["intervention_group"], plot_df["mean_adherence_pct"], color=color2, marker="o", linewidth=2, label="Mean Adherence (%)")
+ax2.tick_params(axis="y", labelcolor=color2)
+
+plt.title("Intervention Group Comparison")
+plt.xticks(rotation=30, ha="right")
+fig.tight_layout()
+plt.show()
 ------------------
 
------ stdout -----
-Using dropout column: dropout -> normalized to 'dropout_status_norm'
-------------------
 
 [31m---------------------------------------------------------------------------[39m
-[31mTypeError[39m                                 Traceback (most recent call last)
-[36mCell[39m[36m [39m[32mIn[6][39m[32m, line 25[39m
-[32m     20[39m [38;5;28;01melse[39;00m:
-[32m     21[39m     [38;5;28mprint[39m([33m"[39m[33mNo dropout-like column found. Candidates:[39m[33m"[39m, dropout_candidates)
-[32m     23[39m cvd_rate = (
-[32m     24[39m     [43mdf[49m[43m.[49m[43mgroupby[49m[43m([49m[33;43m"[39;49m[33;43mintervention_group[39;49m[33;43m"[39;49m[43m,[49m[43m [49m[43mdropna[49m[43m=[49m[38;5;28;43;01mFalse[39;49;00m[43m)[49m[43m[[49m[33;43m"[39;49m[33;43moutcome_cvd[39;49m[33;43m"[39;49m[43m][49m
-[32m---> [39m[32m25[39m [43m      [49m[43m.[49m[43mmean[49m[43m([49m[43mnumeric_only[49m[43m=[49m[38;5;28;43;01mTrue[39;49;00m[43m)[49m
-[32m     26[39m       .reset_index(name=[33m"[39m[33mmean_cvd_rate[39m[33m"[39m)
-[32m     27[39m )
-[32m     29[39m adherence = (
-[32m     30[39m     df.groupby([33m"[39m[33mintervention_group[39m[33m"[39m, dropna=[38;5;28;01mFalse[39;00m)[[33m"[39m[33madherence_pct[39m[33m"[39m]
-[32m     31[39m       .mean(numeric_only=[38;5;28;01mTrue[39;00m)
-[32m     32[39m       .reset_index(name=[33m"[39m[33mmean_adherence_pct[39m[33m"[39m)
-[32m     33[39m )
-[32m     35[39m [38;5;28;01mif[39;00m [33m"[39m[33mdropout_status_norm[39m[33m"[39m [38;5;129;01min[39;00m df.columns:
+[31mKeyError[39m                                  Traceback (most recent call last)
+[36mFile [39m[32m~/.local/lib/python3.12/site-packages/pandas/core/indexes/base.py:3812[39m, in [36mIndex.get_loc[39m[34m(self, key)[39m
+[32m   3811[39m [38;5;28;01mtry[39;00m:
+[32m-> [39m[32m3812[39m     [38;5;28;01mreturn[39;00m [38;5;28;43mself[39;49m[43m.[49m[43m_engine[49m[43m.[49m[43mget_loc[49m[43m([49m[43mcasted_key[49m[43m)[49m
+[32m   3813[39m [38;5;28;01mexcept[39;00m [38;5;167;01mKeyError[39;00m [38;5;28;01mas[39;00m err:
 
-[36mFile [39m[32m~/.local/lib/python3.12/site-packages/pandas/core/groupby/groupby.py:2459[39m, in [36mGroupBy.mean[39m[34m(self, numeric_only, engine, engine_kwargs)[39m
-[32m   2452[39m     [38;5;28;01mreturn[39;00m [38;5;28mself[39m._numba_agg_general(
-[32m   2453[39m         grouped_mean,
-[32m   2454[39m         executor.float_dtype_mapping,
-[32m   2455[39m         engine_kwargs,
-[32m   2456[39m         min_periods=[32m0[39m,
-[32m   2457[39m     )
-[32m   2458[39m [38;5;28;01melse[39;00m:
-[32m-> [39m[32m2459[39m     result = [38;5;28;43mself[39;49m[43m.[49m[43m_cython_agg_general[49m[43m([49m
-[32m   2460[39m [43m        [49m[33;43m"[39;49m[33;43mmean[39;49m[33;43m"[39;49m[43m,[49m
-[32m   2461[39m [43m        [49m[43malt[49m[43m=[49m[38;5;28;43;01mlambda[39;49;00m[43m [49m[43mx[49m[43m:[49m[43m [49m[43mSeries[49m[43m([49m[43mx[49m[43m,[49m[43m [49m[43mcopy[49m[43m=[49m[38;5;28;43;01mFalse[39;49;00m[43m)[49m[43m.[49m[43mmean[49m[43m([49m[43mnumeric_only[49m[43m=[49m[43mnumeric_only[49m[43m)[49m[43m,[49m
-[32m   2462[39m [43m        [49m[43mnumeric_only[49m[43m=[49m[43mnumeric_only[49m[43m,[49m
-[32m   2463[39m [43m    [49m[43m)[49m
-[32m   2464[39m     [38;5;28;01mreturn[39;00m result.__finalize__([38;5;28mself[39m.obj, method=[33m"[39m[33mgroupby[39m[33m"[39m)
+[36mFile [39m[32mpandas/_libs/index.pyx:167[39m, in [36mpandas._libs.index.IndexEngine.get_loc[39m[34m()[39m
 
-[36mFile [39m[32m~/.local/lib/python3.12/site-packages/pandas/core/groupby/groupby.py:1976[39m, in [36mGroupBy._cython_agg_general[39m[34m(self, how, alt, numeric_only, min_count, **kwargs)[39m
-[32m   1964[39m [38;5;129m@final[39m
-[32m   1965[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34m_cython_agg_general[39m(
-[32m   1966[39m     [38;5;28mself[39m,
-[32m   (...)[39m[32m   1973[39m     [38;5;66;03m# Note: we never get here with how="ohlc" for DataFrameGroupBy;[39;00m
-[32m   1974[39m     [38;5;66;03m#  that goes through SeriesGroupBy[39;00m
-[32m-> [39m[32m1976[39m     data = [38;5;28;43mself[39;49m[43m.[49m[43m_get_data_to_aggregate[49m[43m([49m[43mnumeric_only[49m[43m=[49m[43mnumeric_only[49m[43m,[49m[43m [49m[43mname[49m[43m=[49m[43mhow[49m[43m)[49m
-[32m   1978[39m     [38;5;28;01mdef[39;00m[38;5;250m [39m[34marray_func[39m(values: ArrayLike) -> ArrayLike:
-[32m   1979[39m         [38;5;28;01mtry[39;00m:
+[36mFile [39m[32mpandas/_libs/index.pyx:196[39m, in [36mpandas._libs.index.IndexEngine.get_loc[39m[34m()[39m
 
-[36mFile [39m[32m~/.local/lib/python3.12/site-packages/pandas/core/groupby/generic.py:168[39m, in [36mSeriesGroupBy._get_data_to_aggregate[39m[34m(self, numeric_only, name)[39m
-[32m    165[39m [38;5;28;01mif[39;00m numeric_only [38;5;129;01mand[39;00m [38;5;129;01mnot[39;00m is_numeric_dtype(ser.dtype):
-[32m    166[39m     [38;5;66;03m# GH#41291 match Series behavior[39;00m
-[32m    167[39m     kwd_name = [33m"[39m[33mnumeric_only[39m[33m"[39m
-[32m--> [39m[32m168[39m     [38;5;28;01mraise[39;00m [38;5;167;01mTypeError[39;00m(
-[32m    169[39m         [33mf[39m[33m"[39m[33mCannot use [39m[38;5;132;01m{[39;00mkwd_name[38;5;132;01m}[39;00m[33m=True with [39m[33m"[39m
-[32m    170[39m         [33mf[39m[33m"[39m[38;5;132;01m{[39;00m[38;5;28mtype[39m([38;5;28mself[39m).[34m__name__[39m[38;5;132;01m}[39;00m[33m.[39m[38;5;132;01m{[39;00mname[38;5;132;01m}[39;00m[33m and non-numeric dtypes.[39m[33m"[39m
-[32m    171[39m     )
-[32m    172[39m [38;5;28;01mreturn[39;00m single
+[36mFile [39m[32mpandas/_libs/hashtable_class_helper.pxi:7088[39m, in [36mpandas._libs.hashtable.PyObjectHashTable.get_item[39m[34m()[39m
 
-[31mTypeError[39m: Cannot use numeric_only=True with SeriesGroupBy.mean and non-numeric dtypes.
+[36mFile [39m[32mpandas/_libs/hashtable_class_helper.pxi:7096[39m, in [36mpandas._libs.hashtable.PyObjectHashTable.get_item[39m[34m()[39m
+
+[31mKeyError[39m: 'intervention_group'
+
+The above exception was the direct cause of the following exception:
+
+[31mKeyError[39m                                  Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[7][39m[32m, line 4[39m
+[32m      1[39m [38;5;66;03m# TODO: Visualization[39;00m
+[32m      2[39m plot_df = intervention_summary.copy()
+[32m      3[39m plot_df[[33m"[39m[33mintervention_group[39m[33m"[39m] = (
+[32m----> [39m[32m4[39m     [43mplot_df[49m[43m[[49m[33;43m"[39;49m[33;43mintervention_group[39;49m[33;43m"[39;49m[43m][49m.str.strip().str.title()
+[32m      5[39m )
+[32m      6[39m plot_df = (
+[32m      7[39m     plot_df.groupby([33m"[39m[33mintervention_group[39m[33m"[39m, as_index=[38;5;28;01mFalse[39;00m)
+[32m      8[39m            .mean(numeric_only=[38;5;28;01mTrue[39;00m)
+[32m      9[39m            .sort_values([33m"[39m[33mintervention_group[39m[33m"[39m)
+[32m     10[39m )
+[32m     11[39m fig, ax1 = plt.subplots(figsize=([32m8[39m,[32m5[39m))
+
+[36mFile [39m[32m~/.local/lib/python3.12/site-packages/pandas/core/frame.py:4113[39m, in [36mDataFrame.__getitem__[39m[34m(self, key)[39m
+[32m   4111[39m [38;5;28;01mif[39;00m [38;5;28mself[39m.columns.nlevels > [32m1[39m:
+[32m   4112[39m     [38;5;28;01mreturn[39;00m [38;5;28mself[39m._getitem_multilevel(key)
+[32m-> [39m[32m4113[39m indexer = [38;5;28;43mself[39;49m[43m.[49m[43mcolumns[49m[43m.[49m[43mget_loc[49m[43m([49m[43mkey[49m[43m)[49m
+[32m   4114[39m [38;5;28;01mif[39;00m is_integer(indexer):
+[32m   4115[39m     indexer = [indexer]
+
+[36mFile [39m[32m~/.local/lib/python3.12/site-packages/pandas/core/indexes/base.py:3819[39m, in [36mIndex.get_loc[39m[34m(self, key)[39m
+[32m   3814[39m     [38;5;28;01mif[39;00m [38;5;28misinstance[39m(casted_key, [38;5;28mslice[39m) [38;5;129;01mor[39;00m (
+[32m   3815[39m         [38;5;28misinstance[39m(casted_key, abc.Iterable)
+[32m   3816[39m         [38;5;129;01mand[39;00m [38;5;28many[39m([38;5;28misinstance[39m(x, [38;5;28mslice[39m) [38;5;28;01mfor[39;00m x [38;5;129;01min[39;00m casted_key)
+[32m   3817[39m     ):
+[32m   3818[39m         [38;5;28;01mraise[39;00m InvalidIndexError(key)
+[32m-> [39m[32m3819[39m     [38;5;28;01mraise[39;00m [38;5;167;01mKeyError[39;00m(key) [38;5;28;01mfrom[39;00m[38;5;250m [39m[34;01merr[39;00m
+[32m   3820[39m [38;5;28;01mexcept[39;00m [38;5;167;01mTypeError[39;00m:
+[32m   3821[39m     [38;5;66;03m# If we have a listlike key, _check_indexing_error will raise[39;00m
+[32m   3822[39m     [38;5;66;03m#  InvalidIndexError. Otherwise we fall through and re-raise[39;00m
+[32m   3823[39m     [38;5;66;03m#  the TypeError.[39;00m
+[32m   3824[39m     [38;5;28mself[39m._check_indexing_error(key)
+
+[31mKeyError[39m: 'intervention_group'
 
 [ERROR] Execution failed for q7_aggregation.ipynb. Stopping pipeline.

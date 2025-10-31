@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # TODO: Add shebang line: #!/usr/bin/env python3
 # Assignment 5, Question 2: Python Data Processing
 # Process configuration files for data generation.
@@ -105,7 +106,9 @@ def generate_sample_data(filename: str, config: dict) -> None:
     min_val = int(config["sample_data_min"])
     max_val = int(config["sample_data_max"])
 
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    directory = os.path.dirname(filename)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
 
     with open(filename, "w", encoding="utf-8") as f:
         for _ in range(rows):

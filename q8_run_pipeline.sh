@@ -1,3 +1,4 @@
+#!/bin/bash
 # TODO: Add shebang line: #!/bin/bash
 # Assignment 5, Question 8: Pipeline Automation Script
 # Run the clinical trial data analysis pipeline
@@ -39,7 +40,7 @@ NOTEBOOKS=(q4_*.ipynb q5_*.ipynb q6_*.ipynb q7_*.ipynb)
 shopt -u nullglob
 
 if [ ${#NOTEBOOKS[@]} -eq 0 ]; then
-  echo "[ERROR] No Q4–Q7 notebooks found (expected files like q4_*.ipynb, q5_*.ipynb, q6_*.ipynb, q7_*.ipynb)." | tee -a "${LOGFILE}"
+  echo "[ERROR] No Q4-Q7 notebooks found (expected files like q4_*.ipynb, q5_*.ipynb, q6_*.ipynb, q7_*.ipynb)." | tee -a "${LOGFILE}"
   exit 1
 fi
 
